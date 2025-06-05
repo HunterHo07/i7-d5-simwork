@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎮 SimWork - 2.5D Office Simulation Game
 
-## Getting Started
+SimWork is an immersive, AI-powered "2.5D simulation game" that replicates the future of work. Users enter an open-world office environment inspired by Ragnarok Online's design and interact with real tools (IDE, form-filler, design canvas) to complete job-relevant quests.
 
-First, run the development server:
+**🆕 REFINED VERSION: Now featuring realistic game assets, professional character animations, and enhanced visual effects!**
+
+## 🚀 Features
+
+- **2.5D Isometric Office World** - Ragnarok Online inspired design with realistic assets
+- **Professional Characters** - Multiple character types with 8-directional animations
+- **Living Office Environment** - NPCs working, realistic furniture, and ambient activities
+- **Real Embedded Tools** - VS Code, Design Canvas, Form Fillers (framework ready)
+- **AI-Generated Quests** - Dynamic job-relevant challenges (framework ready)
+- **Freelancer Discovery** - Find and connect with talent (framework ready)
+- **Real-time Scoring** - Performance tracking and analytics (framework ready)
+- **Immersive Gameplay** - Open world exploration with interactive work stations
+- **Advanced Visual Effects** - Matrix rain, particles, geometric animations
+- **Responsive Design** - Works on desktop and mobile devices
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, TypeScript, Tailwind CSS
+- **Game Engine**: Phaser 3 (2.5D), Three.js (3D elements)
+- **Animations**: GSAP, Framer Motion
+- **UI Components**: Lucide React icons
+
+## 🎯 Getting Started
 
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# Build for production
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the SimWork demo.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/                 # Next.js app directory
+├── components/          # React components
+│   ├── game/           # Phaser game components
+│   ├── ui/             # UI components
+│   └── tools/          # Embedded tool interfaces
+├── lib/                # Utilities and configurations
+├── assets/             # Game assets (sprites, tiles, audio)
+└── types/              # TypeScript type definitions
+```
 
-## Learn More
+## 🎮 Game Features
 
-To learn more about Next.js, take a look at the following resources:
+### Work Stations
+- **Developer Desk** - Code challenges and debugging
+- **Design Bay** - UI/UX design tasks
+- **Data Entry Station** - Form processing simulations
+- **PM Boardroom** - Project management scenarios
+- **AI Prompt Lab** - AI interaction challenges
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Quest System
+- Dynamic AI-generated tasks
+- Role-specific challenges
+- Real-time performance scoring
+- Progress tracking and badges
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🎨 Visual Effects Pool
 
-## Deploy on Vercel
+- Multi-user cursor effects
+- Matrix-style animations
+- 2D to 2.5D to 3D transitions
+- AI eye tracker
+- Parallax scrolling backgrounds
+- Scroll-synced animations
+- Audio visualizations
+- Terminal typing effects
+- 3D hover interactions
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📋 Development Status
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] Project setup and dependencies
+- [ ] 2.5D game engine integration
+- [ ] Isometric office world design
+- [ ] Character movement system
+- [ ] Work station interactions
+- [ ] Embedded tool interfaces
+- [ ] Quest generation system
+- [ ] User profiles and progression
+- [ ] Freelancer discovery features
+- [ ] Visual effects implementation
+
+## 🎯 MVP Goals
+
+Create a fully functional 2.5D office simulation where users can:
+1. Navigate an isometric office environment
+2. Interact with different work stations
+3. Complete AI-generated quests
+4. Track progress and earn rewards
+5. Discover and connect with other users
+
+## 📄 License
+
+This project is part of a startup demo showcasing the future of work simulation and talent discovery.
