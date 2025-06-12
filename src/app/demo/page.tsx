@@ -87,8 +87,8 @@ export default function DemoPage() {
           onPlayerInteraction={handlePlayerInteraction}
         />
 
-        {/* Back Button */}
-        <div className="absolute top-4 left-4 z-50">
+        {/* Navigation Buttons */}
+        <div className="absolute top-4 left-4 z-50 flex gap-3">
           <Link
             href="/"
             className="flex items-center gap-2 px-4 py-2 bg-game-surface/90 backdrop-blur-sm text-white rounded-lg border border-game-border hover:border-primary-500 transition-colors"
@@ -96,6 +96,14 @@ export default function DemoPage() {
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </Link>
+
+          <button
+            onClick={() => window.location.reload()}
+            className="flex items-center gap-2 px-4 py-2 bg-secondary-600/90 backdrop-blur-sm text-white rounded-lg border border-secondary-500 hover:border-secondary-400 transition-colors"
+          >
+            <span>🔄</span>
+            <span>Restart Demo</span>
+          </button>
         </div>
 
         {/* Demo Instructions */}

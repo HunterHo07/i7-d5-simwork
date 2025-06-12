@@ -223,6 +223,16 @@ export default function Home() {
             </div>
           </Link>
 
+          <Link
+            href="/login"
+            className="px-8 py-4 bg-accent-600 hover:bg-accent-500 text-white font-semibold rounded-lg transition-all duration-300 transform hover:scale-105"
+          >
+            <div className="flex items-center gap-3">
+              <Users className="w-5 h-5" />
+              <span>Login</span>
+            </div>
+          </Link>
+
           <button
             onClick={() => setShowInfo(!showInfo)}
             className="px-8 py-4 bg-game-surface/80 hover:bg-game-surface text-white font-semibold rounded-lg border border-game-border hover:border-primary-500 transition-all duration-300"
@@ -292,6 +302,57 @@ export default function Home() {
             </div>
           </div>
         )}
+
+        {/* Navigation Links */}
+        <div className="mt-16 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-6xl mx-auto mb-12">
+          <Link
+            href="/pitch"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-primary-500 transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">📊</div>
+            <div className="text-sm font-semibold">Pitch Deck</div>
+          </Link>
+
+          <Link
+            href="/why-us"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-secondary-500 transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">🏆</div>
+            <div className="text-sm font-semibold">Why SimWork</div>
+          </Link>
+
+          <Link
+            href="/roadmap"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-accent-500 transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">🗺️</div>
+            <div className="text-sm font-semibold">Roadmap</div>
+          </Link>
+
+          <Link
+            href="/sign-up"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-warning transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">🚀</div>
+            <div className="text-sm font-semibold">Join Beta</div>
+          </Link>
+
+          <Link
+            href="/login"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-info transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">🔐</div>
+            <div className="text-sm font-semibold">Login</div>
+          </Link>
+
+          <Link
+            href="/dashboard"
+            className="p-4 bg-game-surface/50 backdrop-blur-sm rounded-lg border border-game-border hover:border-success transition-colors text-center"
+          >
+            <div className="text-2xl mb-2">📈</div>
+            <div className="text-sm font-semibold">Dashboard</div>
+          </Link>
+        </div>
 
         {/* Footer */}
         <div className="mt-12 text-center text-game-muted text-sm">

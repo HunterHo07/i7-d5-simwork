@@ -395,11 +395,51 @@ export class UIScene extends Phaser.Scene {
 
   public updatePlayerStats(stats: any) {
     // Update player stats display
-    // This would be called from the main scene when stats change
+    if (this.playerStats) {
+      // Update level and XP display
+      const levelText = this.playerStats.list[2] as Phaser.GameObjects.Text;
+      const xpBar = this.playerStats.list[4] as Phaser.GameObjects.Graphics;
+      const questIndicator = this.playerStats.list[5] as Phaser.GameObjects.Text;
+
+      if (levelText) {
+        levelText.setText(`Level ${stats.level}`);
+      }
+
+      if (xpBar) {
+        // Update XP bar
+        xpBar.clear();
+        xpBar.fillStyle(0x374151);
+        xpBar.fillRoundedRect(20, 90, 180, 8, 4);
+
+        const xpProgress = stats.xpToNext > 0 ? stats.xp / stats.xpToNext : 0;
+        xpBar.fillStyle(0xfbbf24);
+        xpBar.fillRoundedRect(20, 90, 180 * xpProgress, 8, 4);
+      }
+
+      if (questIndicator) {
+        questIndicator.setText(`Quests: ${stats.completedQuests}/${stats.totalQuests}`);
+      }
+    }
   }
 
   public updateMiniMap(playerPosition: any) {
     // Update player position on mini map
     this.drawMiniMap();
+
+    // Add player dot on mini map
+    if (playerPosition) {
+      const { width } = this.cameras.main;
+      const mapSize = 120;
+      const mapX = width - 150;
+      const mapY = 50;
+
+      // Calculate player position on mini map
+      const playerMapX = mapX + (playerPosition.x / 40) * mapSize;
+      const playerMapY = mapY + (playerPosition.y / 40) * mapSize;
+
+      // Draw player dot
+      this.miniMap.fillStyle(0xff0000);
+      this.miniMap.fillCircle(playerMapX, playerMapY, 3);
+    }
   }
 }

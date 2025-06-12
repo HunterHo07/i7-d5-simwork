@@ -3,6 +3,9 @@ import { GAME_CONFIG, IsoUtils, COLORS, INPUT_CONFIG, GAME_EVENTS } from '../con
 import { Character } from './Character';
 import { WorkStation } from './WorkStation';
 import { Point, WorkStationType } from '@/types/game';
+import { QuestSystem } from '../quests/QuestSystem';
+import { QuestUI } from '../ui/QuestUI';
+import { TaskManager } from '../tasks/TaskManager';
 
 export class MainScene extends Phaser.Scene {
   private player!: Character;
@@ -11,9 +14,15 @@ export class MainScene extends Phaser.Scene {
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   private wasdKeys!: any;
   private interactKey!: Phaser.Input.Keyboard.Key;
+  private questKey!: Phaser.Input.Keyboard.Key;
   private mapLayer!: Phaser.Tilemaps.TilemapLayer;
   private objectsLayer!: Phaser.GameObjects.Group;
   private isometric = true;
+
+  // Quest System
+  private questSystem!: QuestSystem;
+  private questUI!: QuestUI;
+  private taskManager!: TaskManager;
 
   constructor() {
     super({ key: 'MainScene' });
@@ -25,6 +34,7 @@ export class MainScene extends Phaser.Scene {
     this.createPlayer();
     this.createNPCs();
     this.createWorkStations();
+    this.setupQuestSystem();
     this.setupCamera();
     this.setupUI();
     this.startGameLoop();
@@ -39,7 +49,8 @@ export class MainScene extends Phaser.Scene {
     
     // Action keys
     this.interactKey = this.input.keyboard!.addKey('E');
-    
+    this.questKey = this.input.keyboard!.addKey('Q');
+
     // Mouse input
     this.input.on('pointerdown', this.handleMouseClick, this);
   }
@@ -340,14 +351,20 @@ export class MainScene extends Phaser.Scene {
     // Developer stations
     this.workStations.push(new WorkStation(this, 8, 8, WorkStationType.DEVELOPER_DESK));
     this.workStations.push(new WorkStation(this, 12, 8, WorkStationType.DEVELOPER_DESK));
-    
+
     // Design stations
     this.workStations.push(new WorkStation(this, 28, 8, WorkStationType.DESIGN_BAY));
     this.workStations.push(new WorkStation(this, 32, 8, WorkStationType.DESIGN_BAY));
-    
+
+    // Data entry station
+    this.workStations.push(new WorkStation(this, 8, 12, WorkStationType.DATA_ENTRY_STATION));
+
     // Meeting room
     this.workStations.push(new WorkStation(this, 23, 21, WorkStationType.PM_BOARDROOM));
-    
+
+    // AI Lab
+    this.workStations.push(new WorkStation(this, 32, 12, WorkStationType.AI_PROMPT_LAB));
+
     this.workStations.forEach(station => {
       this.add.existing(station);
     });
@@ -372,6 +389,45 @@ export class MainScene extends Phaser.Scene {
     
     // Enable zoom
     camera.setZoom(1);
+  }
+
+  private setupQuestSystem() {
+    // Initialize quest system
+    this.questSystem = new QuestSystem(this);
+    this.questUI = new QuestUI(this);
+    this.taskManager = new TaskManager(this);
+
+    // Setup quest event listeners
+    this.events.on('quest-started', (quest: any) => {
+      this.questUI.showQuest(quest);
+      this.showMessage(`Quest Started: ${quest.title}`);
+    });
+
+    this.events.on('quest-step-completed', (data: any) => {
+      this.questUI.updateQuest(data.quest);
+      this.showMessage(`Step completed: ${data.step.description}`);
+    });
+
+    this.events.on('quest-completed', (quest: any) => {
+      this.questUI.showQuestComplete(quest);
+      this.showMessage(`Quest Completed: ${quest.title} (+${quest.xpReward} XP)`);
+    });
+
+    this.events.on('player-level-up', (data: any) => {
+      this.questUI.showLevelUp(data.level);
+    });
+
+    this.events.on('show-quest-menu', () => {
+      this.showQuestMenu();
+    });
+
+    // Auto-start first quest after a delay
+    this.time.delayedCall(2000, () => {
+      const availableQuests = this.questSystem.getAvailableQuests();
+      if (availableQuests.length > 0) {
+        this.questSystem.startQuest(availableQuests[0].id);
+      }
+    });
   }
 
   private setupUI() {
@@ -422,6 +478,13 @@ export class MainScene extends Phaser.Scene {
     if (Phaser.Input.Keyboard.JustDown(this.interactKey)) {
       this.handleInteraction();
     }
+
+    // Handle quest key
+    if (Phaser.Input.Keyboard.JustDown(this.questKey)) {
+      if (this.questUI) {
+        this.questUI.toggle();
+      }
+    }
   }
 
   private handleMouseClick(pointer: Phaser.Input.Pointer) {
@@ -454,9 +517,9 @@ export class MainScene extends Phaser.Scene {
     });
   }
 
-  private handleInteraction() {
+  private async handleInteraction() {
     const playerPos = this.player.getTilePosition();
-    
+
     // Find nearby interactable work station
     const nearbyStation = this.workStations.find(station => {
       const distance = Phaser.Math.Distance.Between(
@@ -465,13 +528,111 @@ export class MainScene extends Phaser.Scene {
       );
       return distance <= 1.5;
     });
-    
+
     if (nearbyStation) {
+      // Check for quest interaction
+      if (this.questSystem) {
+        const quest = this.questSystem.handleWorkstationInteraction(nearbyStation.stationType);
+
+        if (quest) {
+          this.showInteractionFeedback(nearbyStation);
+
+          // Get current quest step
+          const currentStep = this.questSystem.getCurrentStep();
+          if (currentStep && currentStep.action === 'interact') {
+            // Start task for this step
+            try {
+              const result = await this.taskManager.startTask(currentStep.target || 'default', nearbyStation.stationType);
+
+              if (result.success) {
+                // Complete the step
+                this.questSystem.completeQuestStep(currentStep.id);
+
+                // Award additional XP from task
+                if (result.xpEarned > 0) {
+                  this.questSystem.addXP(result.xpEarned);
+                }
+              }
+            } catch (error) {
+              console.error('Task failed:', error);
+            }
+          }
+        } else {
+          this.showMessage("No available quests for this workstation. Try another area or check your quest log (Q).");
+        }
+      } else {
+        this.showMessage("Quest system not initialized. Please refresh the page.");
+      }
+
       this.events.emit(GAME_EVENTS.PLAYER_INTERACT, {
         type: 'workstation',
         station: nearbyStation,
         player: this.player,
       });
+    } else {
+      this.showMessage("Nothing to interact with here. Move closer to a work station and press E.");
+    }
+  }
+
+  private showInteractionFeedback(station: WorkStation) {
+    const stationNames = {
+      [WorkStationType.DEVELOPER_DESK]: 'Developer Workstation',
+      [WorkStationType.DESIGN_BAY]: 'Design Studio',
+      [WorkStationType.DATA_ENTRY_STATION]: 'Data Processing Center',
+      [WorkStationType.PM_BOARDROOM]: 'Project Management Hub',
+      [WorkStationType.AI_PROMPT_LAB]: 'AI Innovation Lab'
+    };
+
+    const stationName = stationNames[station.stationType] || 'Work Station';
+    this.showMessage(`Interacting with ${stationName}...`);
+  }
+
+  private showMessage(text: string) {
+    const { width, height } = this.cameras.main;
+
+    // Create message background
+    const messageBg = this.add.graphics();
+    messageBg.fillStyle(0x000000, 0.8);
+    messageBg.fillRoundedRect(width / 2 - 200, height - 100, 400, 60, 8);
+    messageBg.setScrollFactor(0);
+    messageBg.setDepth(10000);
+
+    // Create message text
+    const messageText = this.add.text(width / 2, height - 70, text, {
+      fontSize: '16px',
+      fontFamily: 'Inter, sans-serif',
+      color: '#ffffff',
+      align: 'center',
+      wordWrap: { width: 380 }
+    });
+    messageText.setOrigin(0.5);
+    messageText.setScrollFactor(0);
+    messageText.setDepth(10001);
+
+    // Auto-remove after 3 seconds
+    this.time.delayedCall(3000, () => {
+      messageBg.destroy();
+      messageText.destroy();
+    });
+  }
+
+  private showQuestMenu() {
+    if (!this.questSystem) {
+      this.showMessage("Quest system not available.");
+      return;
+    }
+
+    const availableQuests = this.questSystem.getAvailableQuests();
+    const activeQuest = this.questSystem.getActiveQuest();
+    const playerStats = this.questSystem.getPlayerStats();
+
+    if (activeQuest) {
+      this.questUI.showQuest(activeQuest);
+    } else if (availableQuests.length > 0) {
+      // Show first available quest
+      this.questSystem.startQuest(availableQuests[0].id);
+    } else {
+      this.showMessage(`Level ${playerStats.level} - No new quests available. Complete current objectives to unlock more!`);
     }
   }
 
@@ -482,5 +643,19 @@ export class MainScene extends Phaser.Scene {
 
   public getWorkStations(): WorkStation[] {
     return this.workStations;
+  }
+
+  public getQuestSystem(): QuestSystem {
+    return this.questSystem;
+  }
+
+  public getPlayerStats() {
+    return this.questSystem?.getPlayerStats() || {
+      level: 1,
+      xp: 0,
+      xpToNext: 100,
+      completedQuests: 0,
+      totalQuests: 0
+    };
   }
 }
